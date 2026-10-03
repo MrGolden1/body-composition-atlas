@@ -18,54 +18,73 @@ export function viscFromTest(t) {
   return { area: null, litres: r * t.segments.tr.fat, known: false };
 }
 
-export function solveTest(model, i) {
-  if (solved.has(i)) return solved.get(i);
-  const t = TESTS[i];
-  if (solved.size === 0) {
+// One muscle setting for every test (from the average fat-free mass index): if it varied per
+// test, the volume solver would compensate with the fat drive and shapes could move the wrong way.
+function sharedMuscle() {
+  const h = SUBJECT.heightCm / 100;
+  const ffmi = TESTS.reduce((a, t) => a + t.ffm, 0) / TESTS.length / (h * h);
+  return Math.min(1, Math.max(0.3, 0.5 + (ffmi - 19) / 14));
+}
+
+function solveFor(model, t) {
+  if (solved.size === 0 && !solveFor.init) {
     const V = model.volumes(model.morph({ w: Array(6).fill(0.5), m: Array(6).fill(0.5), belly: 0 }, undefined, false));
     headMass = V[5] * 1.05;
+    solveFor.init = true;
   }
   const segs = SEGMENTS.map((s) => t.segments[s.id]);
   const k = (t.weight - headMass) / segs.reduce((a, s) => a + s.lean + s.fat, 0);
-  const h = SUBJECT.heightCm / 100;
-  const ffmi = t.ffm / (h * h);
-  const m = Math.min(1, Math.max(0.3, 0.5 + (ffmi - 19) / 14));
   const trunkFat = segs[2].fat * k;
   const belly = Math.min(0.8, Math.max(0, (trunkFat - 8) / 25));
   const visc = viscFromTest(t);
-  const r = model.solve({ seg: segs.map((s) => ({ lean: s.lean * k, fat: s.fat * k })), m, belly, viscL: visc.litres });
-  const out = {
-    w: r.w, m: r.m, belly: r.belly, alpha: r.alpha,
+  const r = model.solve({ seg: segs.map((s) => ({ lean: s.lean * k, fat: s.fat * k })), m: sharedMuscle(), belly, viscL: visc.litres });
+  return { w: r.w, m: r.m, belly: r.belly, alpha: r.alpha, visc, volumes: r.volumes };
+}
+
+// the numbers shown on screen always come from the real report
+function infoFor(t, visc) {
+  const segs = SEGMENTS.map((s) => t.segments[s.id]);
+  return {
     fatKg: segs.map((s) => s.fat), leanKg: segs.map((s) => s.lean),
     fatShare: segs.map((s) => s.fat / (s.fat + s.lean)),
     vfa: visc.area ?? 0, vfaKnown: visc.known ? 1 : 0, viscL: visc.litres,
-    volumes: r.volumes,
   };
-  solved.set(i, out);
+}
+
+export function solveTest(model, i) {
+  return emphasize(model, i, 1);
+}
+
+// "Exaggerate differences": each report's measurements are pushed away from the average of all
+// reports (weight, every segment's fat and lean, visceral area), then the body is solved from
+// those exaggerated numbers — so a lighter test always gets lighter and a heavier one heavier.
+export function emphasize(model, i, emph) {
+  const key = i + '|' + emph;
+  if (solved.has(key)) return solved.get(key);
+  const t = TESTS[i];
+  let src = t;
+  if (emph !== 1) {
+    const avg = (get) => { const v = TESTS.map(get).filter((x) => x != null); return v.reduce((a, b) => a + b, 0) / v.length; };
+    const ex = (get, min = 0.1) => (get(t) == null ? null : Math.max(min, avg(get) + (get(t) - avg(get)) * emph));
+    src = {
+      ...t,
+      weight: ex((x) => x.weight, 40),
+      ffm: ex((x) => x.ffm, 20),
+      vfa: ex((x) => x.vfa, 5),
+      segments: Object.fromEntries(SEGMENTS.map(({ id }) => [id, {
+        lean: ex((x) => x.segments[id].lean, 0.5),
+        fat: ex((x) => x.segments[id].fat, 0.2),
+      }])),
+    };
+  }
+  const r = solveFor(model, src);
+  const out = { w: r.w, m: r.m, belly: r.belly, alpha: r.alpha, volumes: r.volumes, ...infoFor(t, viscFromTest(t)), vfa: r.visc.area ?? 0, viscL: r.visc.litres };
+  solved.set(key, out);
   return out;
 }
 
 const lerp = (a, b, t) => a + (b - a) * t;
 const lerpArr = (a, b, t) => a.map((v, i) => lerp(v, b[i], t));
-
-// "Exaggerate differences": push each test's shape away from the mean of all tests
-export function emphasize(model, i, emph) {
-  const p = solveTest(model, i);
-  if (emph === 1) return p;
-  const all = TESTS.map((_, j) => solveTest(model, j));
-  const mean = (get) => {
-    const arrs = all.map(get);
-    return Array.isArray(arrs[0]) ? arrs[0].map((_, k) => arrs.reduce((s, a) => s + a[k], 0) / arrs.length) : arrs.reduce((s, a) => s + a, 0) / arrs.length;
-  };
-  const ex = (v, mu) => (Array.isArray(v) ? v.map((x, k) => mu[k] + (x - mu[k]) * emph) : mu + (v - mu) * emph);
-  return {
-    ...p,
-    w: ex(p.w, mean((q) => q.w)),
-    m: ex(p.m, mean((q) => q.m)),
-    belly: Math.max(0, ex(p.belly, mean((q) => q.belly))),
-    alpha: ex(p.alpha, mean((q) => q.alpha)).map((a) => Math.max(0.0004, a)),
-  };
-}
 
 export function lerpInfo(a, b, t) {
   return {
