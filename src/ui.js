@@ -96,13 +96,12 @@ export function leftHTML(s) {
 
     <div class="field f-display">
       <p class="section-title">${L.display}</p>
+      ${sw('labels', s.labels, L.labels)}
+      ${sw('rotate', s.rotate, L.turntable)}
+      <div style="height:4px"></div>
       <div class="row"><label>${L.exaggerate}</label><span id="emph-val">${num(s.emph)}×</span></div>
       <input id="emph" type="range" min="1" max="3" step="0.1" value="${s.emph}" />
       <div class="hint">${L.exaggerateHint}</div>
-      <div style="height:4px"></div>
-      ${sw('labels', s.labels, L.labels)}
-      ${s.view === 'body' || s.view === 'compare' ? sw('shorts', s.shorts, L.shorts) : ''}
-      ${sw('rotate', s.rotate, L.turntable)}
     </div>
 
     <div class="field f-camera">

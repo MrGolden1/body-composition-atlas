@@ -29,7 +29,7 @@ const state = {
   rotate: false,
   changeMap: true,
   playing: false,
-  shorts: true,
+  shorts: true, // fitted shorts are always on
   tmode: 'xray',
   layers: { fat: true, muscle: true, visc: true },
   cutDepth: 0,
