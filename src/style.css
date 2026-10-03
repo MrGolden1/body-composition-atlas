@@ -258,16 +258,19 @@ table.seg-table { width: 100%; border-collapse: collapse; font-size: 12px; font-
   }
   #mbar .brand h1 { font-size: 14px; }
   #stage { order: 1; height: 68svh; min-height: 430px; flex: none; }
-  #mtabs {
-    order: 2; display: flex; gap: 4px; padding: 8px 12px; position: sticky; top: 56px; z-index: 25;
-    background: rgba(12, 16, 24, 0.94); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line);
-  }
-  #mtabs button { flex: 1; padding: 9px 8px; border-radius: 9px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); font-size: 13px; color: var(--muted); }
-  #mtabs button.active { background: var(--accent-soft); color: var(--accent); border-color: rgba(79, 209, 197, 0.5); }
   .panel { order: 3; overflow: visible; border: 0 !important; padding: 14px 14px calc(28px + env(safe-area-inset-bottom)); background: var(--panel-solid); }
   #left .brand { display: none; }
-  #app[data-mtab='right'] #left { display: none; }
-  #app[data-mtab='left'] #right { display: none; }
+  /* phone: controls sit right under the 3D view (tissue / display / camera first, then the test
+     list), followed by the results — no tabs */
+  #left { order: 2; padding-bottom: 6px; }
+  #right { order: 3; padding-top: 6px; border-top: 1px solid var(--line) !important; }
+  #left .f-tissue { order: 1; }
+  #left .f-compare { order: 2; }
+  #left .f-display { order: 3; }
+  #left .f-camera { order: 4; }
+  #left .f-subject { order: 5; }
+  #left .f-tests { order: 6; }
+  #left .hint.foot { order: 7; }
   .hint.foot { margin-top: 4px; }
 
   #viewchips { top: 10px; max-width: calc(100% - 16px); overflow-x: auto; scrollbar-width: none; }
@@ -288,7 +291,6 @@ table.seg-table { width: 100%; border-collapse: collapse; font-size: 12px; font-
   .callout { min-width: 0; padding: 4px 7px 5px; font-size: 10px; border-radius: 7px; }
   .callout .cn { font-size: 8.5px; }
   .callout .cv b { font-size: 11px; }
-  .callout .xl { display: none; }
   .metric .mv { font-size: 20px; }
 }
 @media (max-width: 380px) {

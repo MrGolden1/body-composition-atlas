@@ -506,7 +506,7 @@ function placeCallouts() {
     const sx = (tmp.x * 0.5 + 0.5) * W, sy = (-tmp.y * 0.5 + 0.5) * H;
     return { i, sx, sy, side: sx >= cx ? 1 : -1, ly: sy };
   });
-  const rowH = MOBILE ? 44 : 62;
+  const rowH = MOBILE ? 58 : 78;
   for (const side of [-1, 1]) {
     const col = items.filter((it) => it.side === side).sort((a, b) => a.ly - b.ly);
     for (let k = 1; k < col.length; k++) col[k].ly = Math.max(col[k].ly, col[k - 1].ly + rowH);

@@ -59,7 +59,7 @@ export function leftHTML(s) {
         <div class="ticks2"><span>${L.feet}</span><span>${L.head}</span></div>`;
     }
     tissue = `
-    <div class="field">
+    <div class="field f-tissue">
       <p class="section-title">${L.tissue}</p>
       <div class="seg">${modes}</div>
       ${slider}
@@ -74,19 +74,19 @@ export function leftHTML(s) {
   return `
     ${brandHTML()}
 
-    <div class="subject">
+    <div class="subject f-subject">
       <div class="avatar">${subjectName()[0]}</div>
       <div><div class="nm">${subjectName()}</div>
       <div class="meta">${L.male} · ${num(SUBJECT.heightCm, 0)} ${L.cm} · ${L.ageN(num(TESTS[s.testIdx].age, 0))}</div></div>
     </div>
 
-    <div>
+    <div class="f-tests">
       <p class="section-title">${L.measurements}</p>
       <div class="tests">${cards}</div>
     </div>
 
     ${s.view === 'compare' ? `
-    <div class="field">
+    <div class="field f-compare">
       <p class="section-title">${L.compareAgainst}</p>
       <div class="seg">${baseOpts}</div>
       ${sw('changeMap', s.changeMap, L.changeColours)}
@@ -94,7 +94,7 @@ export function leftHTML(s) {
 
     ${tissue}
 
-    <div class="field">
+    <div class="field f-display">
       <p class="section-title">${L.display}</p>
       <div class="row"><label>${L.exaggerate}</label><span id="emph-val">${num(s.emph)}×</span></div>
       <input id="emph" type="range" min="1" max="3" step="0.1" value="${s.emph}" />
@@ -105,7 +105,7 @@ export function leftHTML(s) {
       ${sw('rotate', s.rotate, L.turntable)}
     </div>
 
-    <div class="field">
+    <div class="field f-camera">
       <p class="section-title">${L.camera}</p>
       <div class="seg">
         <button data-cam="front">${L.front}</button><button data-cam="side">${L.side}</button>

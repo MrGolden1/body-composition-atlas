@@ -255,23 +255,25 @@ for (let i = 0; i < NB; i++) {
 }
 
 // callout anchors: a front-facing vertex on each segment
-function pickFront(seg, y, xSign, minW = 0.9) {
+function pickFront(seg, y, xSign, minW = 0.9, xMin = 0, xMax = 9) {
   let bi = -1, bz = -1e9;
   for (let i = 0; i < NB; i++) {
     const p = P(i);
     if (segW[i * G + seg] < minW || Math.abs(p[1] - y) > 0.012 || Math.sign(p[0]) !== xSign) continue;
+    if (Math.abs(p[0]) < xMin || Math.abs(p[0]) > xMax) continue;
     if (p[2] > bz) { bz = p[2]; bi = i; }
   }
   return bi;
 }
-const el = jointPos('lowerarm01.L____head'), wr = jointPos('wrist.L____head');
+const sh = jointPos('upperarm01.L____head'), el = jointPos('lowerarm01.L____head');
 const kn = jointPos('lowerleg01.L____head'), hp = jointPos('upperleg01.L____head');
+// upper arm (biceps, near the shoulder), belly beside the navel, lower thigh above the knee
 const anchors = [
-  pickFront(0, el[1] + (wr[1] - el[1]) * 0.35, 1),
-  pickFront(1, el[1] + (wr[1] - el[1]) * 0.35, -1),
-  pickFront(2, navelP[1] + 0.13, 1, 0.95),
-  pickFront(3, hp[1] + (kn[1] - hp[1]) * 0.55, 1),
-  pickFront(4, hp[1] + (kn[1] - hp[1]) * 0.55, -1),
+  pickFront(0, sh[1] + (el[1] - sh[1]) * 0.4, 1),
+  pickFront(1, sh[1] + (el[1] - sh[1]) * 0.4, -1),
+  pickFront(2, navelP[1] + 0.01, 1, 0.95, 0.05, 0.09),
+  pickFront(3, hp[1] + (kn[1] - hp[1]) * 0.82, 1),
+  pickFront(4, hp[1] + (kn[1] - hp[1]) * 0.82, -1),
 ];
 
 // ---- pack ---------------------------------------------------------------------------------
