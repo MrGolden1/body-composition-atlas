@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#090d14" />
+  <title>Body Composition Atlas</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app" data-mtab="right">
+    <header id="mbar"></header>
+
+    <aside id="left" class="panel"></aside>
+
+    <main id="stage">
+      <canvas id="gl"></canvas>
+      <svg id="leaders" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="callouts"></div>
+      <div id="viewchips"></div>
+      <div id="legend"></div>
+      <div id="timeline"></div>
+      <div id="loading">
+        <div class="spinner"></div>
+        <div id="loading-text">Building body…</div>
+      </div>
+    </main>
+
+    <nav id="mtabs"></nav>
+
+    <aside id="right" class="panel"></aside>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
